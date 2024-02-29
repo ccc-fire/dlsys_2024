@@ -20,7 +20,7 @@ def add(x, y):
         Sum of x + y
     """
     ### BEGIN YOUR CODE
-    pass
+    return x + y
     ### END YOUR CODE
 
 
@@ -48,7 +48,31 @@ def parse_mnist(image_filename, label_filename):
                 for MNIST will contain the values 0-9.
     """
     ### BEGIN YOUR CODE
-    pass
+    # images, labels = [], []
+    # with gzip.open(image_filename, 'rb') as img_file:
+    #     magic, nums, rows, cols = struct.unpack('>IIII', img_file.read(16))
+    #     for i in range(nums):
+    #         image = []
+    #         for j in range(rows * cols):
+    #             image.append(ord(img_file.read(1))/255.0)
+    #         images.append(image)
+    #
+    # with gzip.open(label_filename, 'rb') as label_file:
+    #     magic, nums = struct.unpack('>II', label_file.read(8))
+    #     for i in range(nums):
+    #         labels.append(ord(label_file.read(1)))
+    #
+    # return np.array(images, dtype=np.float32), np.array(labels, dtype=np.uint8)
+    # image_filename = os.path.join('../', image_filename)
+    # label_filename = os.path.join('../', label_filename)
+    with gzip.open(image_filename, 'rb') as img_file:
+        magic, nums, rows, cols = struct.unpack('>IIII', img_file.read(16))
+        image = np.frombuffer(img_file.read(), dtype=np.uint8).reshape(nums, rows*cols).astype(np.float32)/255.
+
+    with gzip.open(label_filename, 'rb') as label_file:
+        magic, nums = struct.unpack('>II', label_file.read(8))
+        label = np.frombuffer(label_file.read(), dtype=np.uint8, offset=0).reshape(nums)
+    return image, label
     ### END YOUR CODE
 
 
@@ -68,7 +92,7 @@ def softmax_loss(Z, y):
         Average softmax loss over the sample.
     """
     ### BEGIN YOUR CODE
-    pass
+    return np.mean(np.log(np.sum(np.exp(Z), axis=1))-Z[np.arange(y.shape[0]), y])
     ### END YOUR CODE
 
 
@@ -91,7 +115,18 @@ def softmax_regression_epoch(X, y, theta, lr = 0.1, batch=100):
         None
     """
     ### BEGIN YOUR CODE
-    pass
+    # 迭代batch, 对于每一批，根据梯度规则更新参数
+    sample_num = X.shape[0]
+    iter_num = sample_num // batch
+    for iter in range(iter_num):
+        iter_x = X[iter*batch: (iter+1)*batch, :]
+        iter_y = y[iter*batch: (iter+1)*batch]
+        Z = iter_x @ theta
+        cross_entropy_grad = np.exp(Z) / np.sum(np.exp(Z), axis=1, keepdims=True)
+        cross_entropy_grad[np.arange(iter_y.shape[0]), iter_y] -= 1
+        cross_entropy_grad /= batch
+        theta_grad = iter_x.T @ cross_entropy_grad
+        theta -= lr * theta_grad
     ### END YOUR CODE
 
 
@@ -118,7 +153,29 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
         None
     """
     ### BEGIN YOUR CODE
-    pass
+    sample_num = X.shape[0]
+    iter_num = sample_num // batch
+    for iter in range(iter_num):
+        iter_x = X[iter*batch: (iter+1)*batch, :]
+        iter_y = y[iter*batch: (iter+1)*batch]
+
+        Z1 = iter_x @ W1
+        relu_mask = Z1 > 0
+        relu_Z1 = Z1 * relu_mask
+        Z2 = relu_Z1 @ W2
+
+        cross_entropy_grad = np.exp(Z2) / np.sum(np.exp(Z2), axis=1 , keepdims=True)
+        cross_entropy_grad[np.arange(iter_y.shape[0]), iter_y] -= 1
+        cross_entropy_grad /= batch
+
+        W2_grad = relu_Z1.T @ cross_entropy_grad
+        relu_grad = (cross_entropy_grad @ W2.T) * relu_mask
+        W1_grad = iter_x.T @ relu_grad
+
+        W1 -= lr*W1_grad
+        W2 -= lr*W2_grad
+
+
     ### END YOUR CODE
 
 

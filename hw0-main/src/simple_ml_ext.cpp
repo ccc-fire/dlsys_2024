@@ -33,7 +33,71 @@ void softmax_regression_epoch_cpp(const float *X, const unsigned char *y,
      */
 
     /// BEGIN YOUR CODE
+    size_t iter_num = m / batch;
 
+    float* Z = new float[batch*k];
+    float* grad = new float[n*k];
+
+    for(size_t iter = 0; iter < iter_num; iter++) {
+        const float *iter_x = X + iter * batch * n;
+        const unsigned char *iter_y = y + iter * batch;
+
+        for(size_t m_idx = 0; m_idx < batch; m_idx++) {
+            float acc = 0;
+            for(size_t k_idx = 0; k_idx < k; k_idx++) {
+                float sum = 0;
+                for(size_t n_idx = 0; n_idx < n; n_idx++) {
+                    sum += iter_x[m_idx*n + n_idx] * theta[n_idx*k + k_idx];
+                }
+                Z[m_idx*k + k_idx] = std::exp(sum);
+                acc += Z[m_idx*k + k_idx];
+            }
+
+            for(size_t k_idx = 0; k_idx < k; k_idx++) {
+                Z[m_idx*k + k_idx] /= acc;
+                if(k_idx == iter_y[m_idx]) {
+                    Z[m_idx*k + k_idx] -= 1;
+                }
+                Z[m_idx*k + k_idx] /= batch;
+            }
+
+        }
+
+        // for(size_t m_idx = 0; m_idx < batch; m_idx++) {
+        //     float accum = 0;
+        //     for(size_t k_idx = 0; k_idx < k; k_idx++) {
+        //         accum += std::exp(Z[m_idx*k + k_idx]);
+        //     }
+
+        //     for(size_t k_idx = 0; k_idx < k; k_idx++) {
+        //         Z[m_idx*k + k_idx] = std::exp(Z[m_idx*k + k_idx]) / accum;
+            
+        //         if(k_idx == iter_y[m_idx]) {
+        //             Z[m_idx*k + k_idx] -= 1;
+        //         }
+
+        //         Z[m_idx*k + k_idx] /= batch;
+        //     }
+        // }
+
+        for(size_t n_idx = 0; n_idx < n; n_idx++) {
+            for(size_t k_idx = 0; k_idx < k; k_idx++) {
+                float grad_val = 0;
+                for(size_t m_idx = 0; m_idx < batch; m_idx++) {
+                    grad_val += iter_x[n*m_idx + n_idx] * Z[m_idx*k + k_idx];
+                }
+                grad[n_idx*k + k_idx] = grad_val;
+                theta[n_idx*k + k_idx] -= lr * grad_val;
+            }
+        }
+        // for(size_t n_idx = 0; n_idx < n; n_idx++) {
+        //     for(size_t k_idx = 0; k_idx < k; k_idx++) {
+        //         theta[n_idx*k + k_idx] -= lr * grad[n_idx*k + k_idx];
+        //     }
+        // }
+    }
+    delete[] Z;
+    delete[] grad;
     /// END YOUR CODE
 }
 

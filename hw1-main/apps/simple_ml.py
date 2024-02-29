@@ -101,8 +101,51 @@ def nn_epoch(X, y, W1, W2, lr=0.1, batch=100):
     """
 
     ### BEGIN YOUR SOLUTION
+    sample_num = X.shape[0]
+    assert sample_num == y.shape[0]
+    iter_num = sample_num // batch
+    
+    for iter in range(iter_num):
+        iter_x = ndl.ops.Tensor(X[iter*batch: (iter+1)*batch, : ])
+        iter_y = y[iter*batch: (iter+1)*batch]
+        
+        Z = ndl.ops.matmul(ndl.ops.relu(ndl.ops.matmul(iter_x, W1)), W2)
+        
+        y_one_hot = np.zeros(Z.shape)
+        y_one_hot[np.arange(Z.shape[0]), iter_y] = 1
+        y_one_hot = ndl.ops.Tensor(y_one_hot)
+
+        loss = softmax_loss(Z, y_one_hot)
+        loss.backward()
+
+        W1.data -= lr * ndl.Tensor(W1.grad.numpy().astype(np.float32))
+        W2.data -= lr * ndl.Tensor(W2.grad.numpy().astype(np.float32))
     return W1, W2
     ### END YOUR SOLUTION
+        
+    # ### BEGIN YOUR CODE
+    # sample_num = X.shape[0]
+    # iter_num = sample_num // batch
+    # for iter in range(iter_num):
+    #     iter_x = X[iter*batch: (iter+1)*batch, :]
+    #     iter_y = y[iter*batch: (iter+1)*batch]
+
+    #     Z1 = iter_x @ W1
+    #     relu_mask = Z1 > 0
+    #     relu_Z1 = Z1 * relu_mask
+    #     Z2 = relu_Z1 @ W2
+
+    #     cross_entropy_grad = np.exp(Z2) / np.sum(np.exp(Z2), axis=1 , keepdims=True)
+    #     cross_entropy_grad[np.arange(iter_y.shape[0]), iter_y] -= 1
+    #     cross_entropy_grad /= batch
+
+    #     W2_grad = relu_Z1.T @ cross_entropy_grad
+    #     relu_grad = (cross_entropy_grad @ W2.T) * relu_mask
+    #     W1_grad = iter_x.T @ relu_grad
+
+    #     W1 -= lr*W1_grad
+    #     W2 -= lr*W2_grad
+    # ### END YOUR CODE
 
 
 ### CODE BELOW IS FOR ILLUSTRATION, YOU DO NOT NEED TO EDIT
