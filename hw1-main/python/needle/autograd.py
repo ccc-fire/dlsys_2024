@@ -404,33 +404,45 @@ def find_topo_sort(node_list: List[Value]) -> List[Value]:
     after all its predecessors are traversed due to post-order DFS, we get a topological
     sort.
     """
-    ### BEGIN YOUR SOLUTION
-    output_tensor = node_list[0]
+    # ### BEGIN YOUR SOLUTION
+    # output_tensor = node_list[0]
+    # topo_order = []
+    # topo_sort_dfs(output_tensor, [], topo_order)
+    # # print(topo_order)
+    # return topo_order
+    # ### END YOUR SOLUTION
+    visited = set()
     topo_order = []
-    topo_sort_dfs(output_tensor, [], topo_order)
-    print(topo_order)
+    for node in node_list:
+        topo_sort_dfs(node, visited, topo_order)
     return topo_order
-    ### END YOUR SOLUTION
+
+    
 
 
 def topo_sort_dfs(node, visited, topo_order):
     """Post-order DFS"""
-    ### BEGIN YOUR SOLUTION
-    if node.inputs is None:
-        if node not in visited:
-            topo_order.append(node)
-        return
+    # ### BEGIN YOUR SOLUTION
+    # if node.inputs is None:
+    #     if node not in visited:
+    #         topo_order.append(node)
+    #     return
     
-    for child in node.inputs:
-        topo_sort_dfs(child, visited, topo_order)
-        if child not in visited:
-            visited.append(child)
-            topo_order.append(child)
+    # for child in node.inputs:
+    #     topo_sort_dfs(child, visited, topo_order)
+    #     if child not in visited:
+    #         visited.append(child)
+    #         topo_order.append(child)
 
+    # if node not in visited:
+    #     visited.append(node)
+    #     topo_order.append(node)
+    # ### END YOUR SOLUTION
+    for node_input in node.inputs:
+        topo_sort_dfs(node_input, visited, topo_order)
     if node not in visited:
-        visited.append(node)
+        visited.add(node)
         topo_order.append(node)
-    ### END YOUR SOLUTION
 
 
 ##############################
