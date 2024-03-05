@@ -207,19 +207,20 @@ class BroadcastTo(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        reduce_axes = []
-        input, = node.inputs
-        input_shape = input.shape
-        out_shape = out_grad.shape
-        s, n = 0, len(input_shape)
-        for i, shape in enumerate(out_shape):
-            if s == n:
-                reduce_axes.append(i)
-            else:
-                if input_shape[s] != shape:
-                    reduce_axes.append(i)
-                s += 1
+        input_shape = node.inputs[0].shape
+        input_shape_len = len(input_shape) - 1
 
+        reduce_axes = []  # 记录发生广播的维度，从右向左索引
+
+        for idx in range(len(out_grad.shape)-1, -1, -1):
+            if input_shape_len < 0:  # 判断第idx维是否发生广播
+                reduce_axes.append(idx)
+                continue
+
+            if input_shape[input_shape_len] != out_grad.shape[idx]:
+                reduce_axes.append(idx)
+
+            input_shape_len -= 1
         return reshape(summation(out_grad, tuple(reduce_axes)), input_shape)
         ### END YOUR SOLUTION
 
@@ -239,22 +240,30 @@ class Summation(TensorOp):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        reshape_shape = []
-        input, = node.inputs
-        input_shape = input.shape
-        out_shape = out_grad.shape
-        s, n = 0, len(out_shape)
-        for i, shape in enumerate(input_shape):
-            if s < n:
-                if shape == out_shape[s]:
-                    reshape_shape.append(shape)
-                    s += 1
-                else:
-                    reshape_shape.append(1)
-            else:
-                reshape_shape.append(1)
-
+        input_shape = node.inputs[0].shape
+        reshape_shape = list(input_shape)  # 初始化为与input_shape相同的shape
+        if self.axes:
+            for i in self.axes:
+                reshape_shape[i] = 1
+        else: reshape_shape = [1 for _ in range(len(reshape_shape))]
         return broadcast_to(reshape(out_grad, reshape_shape), input_shape)
+    
+        # reshape_shape = []
+        # input, = node.inputs
+        # input_shape = input.shape
+        # out_shape = out_grad.shape
+        # s, n = 0, len(out_shape)
+        # for i, shape in enumerate(input_shape):
+        #     if s < n:
+        #         if shape == out_shape[s]:
+        #             reshape_shape.append(shape)
+        #             s += 1
+        #         else:
+        #             reshape_shape.append(1)
+        #     else:
+        #         reshape_shape.append(1)
+
+        # return broadcast_to(reshape(out_grad, reshape_shape), input_shape)
         ### END YOUR SOLUTION
 
 
