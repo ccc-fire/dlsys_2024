@@ -117,12 +117,15 @@ class EWiseDiv(TensorOp):
 
     def compute(self, a, b):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return array_api.divide(a, b)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        lhs, rhs = node.inputs
+        return divide(out_grad, rhs), -out_grad * lhs / power_scalar(rhs, 2)
         ### END YOUR SOLUTION
 
 
@@ -136,12 +139,14 @@ class DivScalar(TensorOp):
 
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return  array_api.divide(a, self.scalar)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return divide_scalar(out_grad, self.scalar)
         ### END YOUR SOLUTION
 
 
@@ -180,12 +185,15 @@ class Reshape(TensorOp):
 
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return array_api.reshape(a, self.shape)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        input, = node.inputs
+        return reshape(out_grad, input.shape)
         ### END YOUR SOLUTION
 
 
@@ -214,7 +222,7 @@ class BroadcastTo(TensorOp):
         for idx in range(len(out_grad.shape)-1, -1, -1):
             if input_shape_len < 0:  # 判断第idx维是否发生广播
                 reduce_axes.append(idx)
-                # continue
+                continue
 
             if input_shape[input_shape_len] != out_grad.shape[idx]:
                 reduce_axes.append(idx)
@@ -241,17 +249,16 @@ class Summation(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         # raise NotImplementedError()
-        in_shape = node.inputs[0].shape
-        reshape_shape = []
+        input_shape = node.inputs[0].shape
+        reshape_shape = list(input_shape)
 
-        # sum 的维度需要记录下来并广播到原来的维度
-        for idx in range(len(out_grad.shape)-1, -1, -1):
-            if in_shape[idx] == out_grad.shape[idx]:
-                reshape_shape.append(in_shape[idx])
-            else:
-                reshape_shape.append(1)
-        return broadcast_to(reshape(out_grad, reshape_shape), in_shape)
-
+        if self.axes:
+            for i in self.axes:
+                reshape_shape[i] = 1
+        else:
+            reshape_shape = [1 for _ in range(len(reshape_shape))]
+        
+        return broadcast_to(reshape(out_grad, reshape_shape), input_shape)
         ### END YOUR SOLUTION
 
 
@@ -281,12 +288,14 @@ def matmul(a, b):
 class Negate(TensorOp):
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return array_api.negative(a)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return negate(out_grad)
         ### END YOUR SOLUTION
 
 

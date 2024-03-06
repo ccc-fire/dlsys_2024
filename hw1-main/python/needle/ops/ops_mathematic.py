@@ -245,7 +245,8 @@ class Summation(TensorOp):
         if self.axes:
             for i in self.axes:
                 reshape_shape[i] = 1
-        else: reshape_shape = [1 for _ in range(len(reshape_shape))]
+        else:
+            reshape_shape = [1 for _ in range(len(reshape_shape))]
         return broadcast_to(reshape(out_grad, reshape_shape), input_shape)
     
         # reshape_shape = []
