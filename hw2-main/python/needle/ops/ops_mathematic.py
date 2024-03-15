@@ -275,8 +275,19 @@ class MatMul(TensorOp):
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         lhs, rhs = node.inputs
+        lhs_lens = len(lhs.shape)
+        rhs_lens = len(rhs.shape)
         lhs_grad = matmul(out_grad, transpose(rhs))
-        rhs_grad = matmul(transpose(lhs), transpose(out_grad))  
+        rhs_grad = matmul(transpose(lhs), out_grad)
+        
+        if lhs_lens > rhs_lens:
+            sum_axes = tuple([i for i in range(lhs_lens - rhs_lens)])
+            rhs_grad = summation(rhs_grad, axes=sum_axes)
+            
+        elif lhs_lens < rhs_lens:
+            sum_axes = tuple([i for i in range(rhs_lens - lhs_lens)])
+            lhs_grad = summation(lhs_grad, axes=sum_axes)
+        
         return lhs_grad, rhs_grad
         ### END YOUR SOLUTION
 
@@ -322,12 +333,14 @@ def log(a):
 class Exp(TensorOp):
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return array_api.exp(a)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return out_grad * exp(node.inputs[0])
         ### END YOUR SOLUTION
 
 
@@ -338,12 +351,17 @@ def exp(a):
 class ReLU(TensorOp):
     def compute(self, a):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        return array_api.maximum(a, 0)
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        input, = node.inputs
+        input = input.realize_cached_data()
+        mask = Tensor(input > 0)
+        return out_grad * mask
         ### END YOUR SOLUTION
 
 

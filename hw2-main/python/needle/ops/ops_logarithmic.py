@@ -29,13 +29,25 @@ class LogSumExp(TensorOp):
 
     def compute(self, Z):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+
+        max_z = array_api.max(Z, axis=self.axes, keepdims=True)
+        log_sum_exp_z = array_api.log(array_api.sum(array_api.exp(Z - max_z), axis=self.axes, keepdims=True)) + max_z
+        log_sum_exp_z = array_api.squeeze(log_sum_exp_z, axis=self.axes)
+        return log_sum_exp_z
+
         ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
-        ### END YOUR SOLUTION
+        Z, = node.inputs
+        if self.axes:
+            
+
+            pass
+        else:
+            return out_grad * exp(Z - node)
+        # ### END YOUR SOLUTION
 
 
 def logsumexp(a, axes=None):
