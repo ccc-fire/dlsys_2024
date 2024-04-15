@@ -88,17 +88,12 @@ class Linear(Module):
         self.out_features = out_features
 
         ### BEGIN YOUR SOLUTION
-        # raise NotImplementedError()
-        self.weight = Parameter(init.kaiming_uniform(in_features, out_features))
-        self.bias = Parameter(ops.transpose(init.kaiming_uniform(out_features, 1))) if bias else None
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
     def forward(self, X: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
-        out = ops.matmul(X, self.weight)
-        if self.bias:
-            out = out + self.bias
-        return out        
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -112,7 +107,7 @@ class Flatten(Module):
 class ReLU(Module):
     def forward(self, x: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
-        return ops.relu(x)
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -123,9 +118,7 @@ class Sequential(Module):
 
     def forward(self, x: Tensor) -> Tensor:
         ### BEGIN YOUR SOLUTION
-        for module in self.modules:
-            x = module(x)
-        return x
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
