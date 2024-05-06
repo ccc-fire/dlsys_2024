@@ -18,9 +18,12 @@ class RandomFlipHorizontal(Transform):
             H x W x C ndarray corresponding to image flipped with probability self.p
         Note: use the provided code to provide randomness, for easier testing
         """
-        flip_img = np.random.rand() < self.p
+        flip_img = np.random.rand() < self.p  # 0-1之间的随机数
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        if flip_img:
+            img = img[:, ::-1, :]
+        return img
         ### END YOUR SOLUTION
 
 
@@ -38,5 +41,13 @@ class RandomCrop(Transform):
         """
         shift_x, shift_y = np.random.randint(low=-self.padding, high=self.padding+1, size=2)
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        H, W, C = img.shape
+        # pad = np.zeros((H + shift_y, W + shift_x, C)) + img
+        pad = np.zeros((H + 2 * self.padding, W + 2 * self.padding, C))
+        pad[self.padding : self.padding + H, self.padding : self.padding + W, :] = img
+        new_x, new_y = self.padding + shift_x, self.padding + shift_y
+        crop = pad[new_x : new_x + H, new_y : new_y + W, :]
+        return crop
+
         ### END YOUR SOLUTION
