@@ -25,31 +25,15 @@ class SGD(Optimizer):
 
     def step(self):
         ### BEGIN YOUR SOLUTION
-        for param in self.params:
-            if param.grad is None:
-                continue
-            if param not in self.u:
-                self.u[param] = ndl.zeros_like(param.grad)
-
-            param_grad = param.grad.detach().cached_data + self.weight_decay * param.detach().cached_data
-            self.u[param] = ndl.Tensor(self.momentum * self.u[param] + (1 - self.momentum) * param_grad, dtype='float32')
-            param.data -= self.lr * self.u[param]
-
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
     def clip_grad_norm(self, max_norm=0.25):
         """
         Clips gradient norm of parameters.
         """
-        '''
-        L2正则化, 也叫做权重衰减。
-        '''
         ### BEGIN YOUR SOLUTION
-        # raise NotImplementedError()
-        for param in self.params:
-            total_norm = 0.5 * np.sqrt(((param.detach().cached_data) * (param.detach().cached_data)).sum())
-            clip_coef = max_norm / total_norm # 裁剪系数
-            param = clip_coef * param
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -77,5 +61,4 @@ class Adam(Optimizer):
     def step(self):
         ### BEGIN YOUR SOLUTION
         raise NotImplementedError()
-
         ### END YOUR SOLUTION
