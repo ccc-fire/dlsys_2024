@@ -247,7 +247,14 @@ class NDArray:
         """
 
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        if prod(new_shape) != prod(self._shape):
+            raise ValueError("Product of current shape is not equal to \
+                              the product of the new shape!")
+
+        if not self.is_compact():
+            raise ValueError("The matrix is not compact!")
+        
+        return NDArray.make(new_shape, NDArray.compact_strides(new_shape), self._device, self._handle)
         ### END YOUR SOLUTION
 
     def permute(self, new_axes):
@@ -272,7 +279,10 @@ class NDArray:
         """
 
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        new_shape = tuple(self._shape[i] for i in new_axes)
+        new_stride = tuple(self._strides[i] for i in new_axes)
+        return NDArray.make(new_shape, new_stride, self._device, self._handle)
         ### END YOUR SOLUTION
 
     def broadcast_to(self, new_shape):
@@ -296,7 +306,18 @@ class NDArray:
         """
 
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        # raise NotImplementedError()
+        assert(len(self._shape) == len(new_shape))
+        for x, y in zip(self._shape, new_shape):
+            assert(x == y or x == 1)  # 广播发生在缺失或者长度为1的维度上
+        
+        
+        new_stride = list(self._strides)
+        for i in range(len(self._shape)):
+            if self._shape[i] != new_shape[i]:
+                new_stride[i] = 0
+        return NDArray.make(new_shape, tuple(new_stride), self._device, self._handle)
+
         ### END YOUR SOLUTION
 
     ### Get and set elements
@@ -363,7 +384,19 @@ class NDArray:
         assert len(idxs) == self.ndim, "Need indexes equal to number of dimensions"
 
         ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
+        '''
+        slice[0]: 在第0个维度上切片。以此类推
+        ''' 
+        new_offset = 0
+        new_shape = list(self.shape)
+        new_strides = list(self.strides)
+
+        for i, sli in enumerate(idxs):
+            new_offset += self.strides[i] * sli.start
+            new_shape[i] = math.ceil((sli.stop - sli.start) / sli.step)
+            new_strides[i] = self.strides[i] * sli.step
+        # print(new_shape, new_strides, new_offset)
+        return NDArray.make(tuple(new_shape), tuple(new_strides), self.device, self._handle, new_offset)
         ### END YOUR SOLUTION
 
     def __setitem__(self, idxs, other):

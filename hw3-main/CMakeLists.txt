@@ -53,11 +53,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set_property(TARGET ndarray_backend_cpu PROPERTY LINK_OPTIONS -undefined dynamic_lookup)
 endif()
 
-
-
 ####################
 ### CUDA BACKEND ###
 ####################
+
+# 这两个设置好
+set(CMAKE_CUDA_COMPILER "/usr/local/cuda-11.3/bin/nvcc") # 替换为你的CUDA安装路径
+set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-11.3")      # 替换为你的CUDA安装路径
+
 find_package(CUDA)
 if(CUDA_FOUND)
   message(STATUS "Found cuda, building cuda backend")
@@ -88,6 +91,4 @@ if(CUDA_FOUND)
     CXX_VISIBILITY_PRESET "hidden"
     CUDA_VISIBILITY_PRESET "hidden"
 )
-
 endif()
-

@@ -11,6 +11,9 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.16.3/CMakeCCompiler.cmake"
   "CMakeFiles/3.16.3/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.16.3/CMakeSystem.cmake"
+  "CMakeFiles/ndarray_backend_cuda.dir/src/ndarray_backend_cuda_generated_ndarray_backend_cuda.cu.o.cmake.pre-gen"
+  "CMakeFiles/ndarray_backend_cuda.dir/src/ndarray_backend_cuda_generated_ndarray_backend_cuda.cu.o.depend"
+  "detect_cuda_compute_capabilities.cpp"
   "/home/fire/miniconda3/lib/python3.8/site-packages/pybind11/share/cmake/pybind11/pybind11Common.cmake"
   "/home/fire/miniconda3/lib/python3.8/site-packages/pybind11/share/cmake/pybind11/pybind11Config.cmake"
   "/home/fire/miniconda3/lib/python3.8/site-packages/pybind11/share/cmake/pybind11/pybind11ConfigVersion.cmake"
@@ -32,6 +35,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake-3.16/Modules/Compiler/GNU-CXX.cmake"
   "/usr/share/cmake-3.16/Modules/Compiler/GNU.cmake"
   "/usr/share/cmake-3.16/Modules/FindCUDA.cmake"
+  "/usr/share/cmake-3.16/Modules/FindCUDA/run_nvcc.cmake"
   "/usr/share/cmake-3.16/Modules/FindCUDA/select_compute_arch.cmake"
   "/usr/share/cmake-3.16/Modules/FindPackageHandleStandardArgs.cmake"
   "/usr/share/cmake-3.16/Modules/FindPackageMessage.cmake"
@@ -54,10 +58,13 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
+  "CMakeFiles/ndarray_backend_cuda.dir/src/ndarray_backend_cuda_generated_ndarray_backend_cuda.cu.o.cmake.pre-gen"
+  "CMakeFiles/ndarray_backend_cuda.dir/src/ndarray_backend_cuda_generated_ndarray_backend_cuda.cu.o.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/ndarray_backend_cuda.dir/DependInfo.cmake"
   "CMakeFiles/ndarray_backend_cpu.dir/DependInfo.cmake"
   )

@@ -17,6 +17,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/home/fire/miniconda3/include/python3.8"
   "/home/fire/miniconda3/lib/python3.8/site-packages/pybind11/include"
+  "/usr/local/cuda-11.3/include"
   )
 
 # Targets to which this target links.

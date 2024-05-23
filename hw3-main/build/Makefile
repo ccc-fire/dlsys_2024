@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named ndarray_backend_cuda
+
+# Build rule for target.
+ndarray_backend_cuda: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ndarray_backend_cuda
+.PHONY : ndarray_backend_cuda
+
+# fast build rule for target.
+ndarray_backend_cuda/fast:
+	$(MAKE) -f CMakeFiles/ndarray_backend_cuda.dir/build.make CMakeFiles/ndarray_backend_cuda.dir/build
+.PHONY : ndarray_backend_cuda/fast
+
+#=============================================================================
 # Target rules for targets named ndarray_backend_cpu
 
 # Build rule for target.
@@ -158,6 +171,7 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
+	@echo "... ndarray_backend_cuda"
 	@echo "... ndarray_backend_cpu"
 	@echo "... src/ndarray_backend_cpu.o"
 	@echo "... src/ndarray_backend_cpu.i"

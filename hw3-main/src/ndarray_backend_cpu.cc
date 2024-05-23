@@ -44,6 +44,8 @@ void Fill(AlignedArray* out, scalar_t val) {
 }
 
 
+// void _strided_index_setter (const AlignedArray)
+
 
 void Compact(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shape,
              std::vector<int32_t> strides, size_t offset) {
@@ -60,9 +62,27 @@ void Compact(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shap
    * Returns:
    *  void (you need to modify out directly, rather than returning anything; this is true for all the
    *  function will implement here, so we won't repeat this note.)
-   */
+   **/
   /// BEGIN SOLUTION
   assert(false && "Not Implemented");
+  // 将多维数据按照展开顺序转换成一维数组
+  size_t ndim = strides.size(), idx_out = 0;
+  std::vector<uint32_t> indices(ndim, 0);  //存储当前每个维度的索引位置
+
+  while(indices[0] != shape[0]) {
+    size_t idx_a = 0;
+    for(size_t i = 0; i < ndim; i++)
+      idx_a += indices[i] * strides[i];
+    out->ptr[idx_out++] = a.ptr[offset + idx_a];
+    indices[ndim-1]++;
+
+    for(size_t i = ndim - 1; i > 0; i--) {
+      if(indices[i] != shape[i])
+        break;
+      indices[i] = 0;
+      indices[i-1]++;
+    }
+  }
   /// END SOLUTION
 }
 
@@ -77,6 +97,7 @@ void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<int32_t>
    *   shape: shapes of each dimension for a and out
    *   strides: strides of the *out* array (not a, which has compact strides)
    *   offset: offset of the *out* array (not a, which has zero offset, being compact)
+   将一个非紧凑排列的数组 a 中的元素写入到另一个非紧凑排列的数组 out 中。
    */
   /// BEGIN SOLUTION
   assert(false && "Not Implemented");
@@ -123,6 +144,144 @@ void ScalarAdd(const AlignedArray& a, scalar_t val, AlignedArray* out) {
 }
 
 
+//////////////////////////////////////////
+
+// void EwiseMul(const AlignedArray& a, const AlignedArray& b, AlignedArray* out) {
+//   /**
+//  * 两个数组逐元素相乘
+// */
+//   for (size_t i = 0; i < a.size; i++) {
+//     out->ptr[i] = a.ptr[i] * b.ptr[i];
+//   }
+
+// }
+
+void ScalarMul(const AlignedArray& a, scalar_t val, AlignedArray* out) {
+  /**
+   * 数组中的每个元素与一个标量值相乘
+  */
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = a.ptr[i] * val;
+  }
+}
+
+// void EwiseDiv(const AlignedArray& a, const AlignedArray& b, AlignedArray* out) {
+
+//   for (size_t i = 0; i < a.size; i++) {
+//     out->ptr[i] = a.ptr[i] / b.ptr[i];
+//   }
+// }
+
+void ScalarDiv(const AlignedArray& a, scalar_t val, AlignedArray* out) {
+
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = a.ptr[i] / val;
+  }
+}
+
+void ScalarPower(const AlignedArray& a, scalar_t val, AlignedArray* out) {
+  /**
+   * 一个数组的每个元素求标量指数幂
+  */ 
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = 1;
+    for (size_t k = 0; k < val; k++) {
+        // out->ptr[i] *= a.ptr[i];
+        out->ptr[i] = pow(a.ptr[i], val);
+    }
+  }
+}
+
+void EwiseMaximum(const AlignedArray& a, const AlignedArray& b, AlignedArray* out) {
+  /**
+   * 对两个数组进行逐元素的最大值操作
+  */
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = std::max(a.ptr[i], b.ptr[i]);
+  }
+}
+
+void ScalarMaximum(const AlignedArray& a, scalar_t val, AlignedArray* out) {
+  /**
+   * 将一个数组的每个元素与一个标量值比较取最大值。
+  */
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = std::max(a.ptr[i], val);
+  }
+}
+  // m.def("ewise_eq", EwiseEq);
+  // m.def("scalar_eq", ScalarEq);
+  // m.def("ewise_ge", EwiseGe);
+  // m.def("scalar_ge", ScalarGe);
+
+void EwiseEq(const AlignedArray& a, const AlignedArray& b, AlignedArray* out) {
+  /**
+   * 对两个数组进行逐元素的相等性比较
+  */
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = (a.ptr[i]==b.ptr[i]);
+  }
+}
+
+void ScalarEq(const AlignedArray& a, scalar_t val, AlignedArray* out) {
+  /**
+   * 将一个数组的每个元素与一个标量值进行相等性比较。
+  */
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = (a.ptr[i]==val);
+  }
+}
+
+void EwiseGe(const AlignedArray& a, const AlignedArray& b, AlignedArray* out) {
+  /**
+   * 对两个数组进行逐元素的大于等于比较
+  */
+   for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = (a.ptr[i]>=b.ptr[i]);
+  }
+}
+
+void ScalarGe(const AlignedArray& a, scalar_t val, AlignedArray* out) {
+  /**
+   * 将一个数组的每个元素与一个标量值进行大于等于比较
+  */
+    for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = (a.ptr[i]>=val);
+  }
+}
+
+  // m.def("ewise_log", EwiseLog);
+  // m.def("ewise_exp", EwiseExp);
+  // m.def("ewise_tanh", EwiseTanh);
+
+void EwiseLog(const AlignedArray& a, AlignedArray* out) {
+  /**
+   * 计算一个数组的每个元素的自然对数
+  */
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = log(a.ptr[i]);
+  }
+}
+
+void EwiseExp(const AlignedArray& a, AlignedArray* out) {
+  /**
+   * 计算一个数组的每个元素的指数函数
+  */
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = exp(a.ptr[i]);
+  }
+}
+
+void EwiseTanh(const AlignedArray& a, AlignedArray* out) {
+  /**
+   * 计算一个数组的每个元素的双曲正切函数
+  */
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = tanh(a.ptr[i]);
+  }
+}
+//////////////////////////////////////////
+
 /**
  * In the code the follows, use the above template to create analogous element-wise
  * and and scalar operators for the following functions.  See the numpy backend for
@@ -142,6 +301,46 @@ void ScalarAdd(const AlignedArray& a, scalar_t val, AlignedArray* out) {
  * functions (however you want to do so, as long as the functions match the proper)
  * signatures above.
  */
+
+
+///////////////////////////////////
+
+//模板函数//逐元素操作函数
+template<typename Func>
+void EwiseFunc(const AlignedArray& a, const AlignedArray& b, AlignedArray* out, Func func) {
+    for (size_t i = 0; i < a.size; i++) {
+        out->ptr[i] = func(a.ptr[i], b.ptr[i]);
+    }
+}
+
+struct EwiseMulFunc
+{
+  template<typename T>
+  T operator()(const T& x, const T& y) const{
+    return x * y;
+  }
+};
+
+struct EwiseDivFunc
+{
+  template<typename T>
+    T operator()(const T& x, const T& y) const{
+    return x / y;
+  }
+};
+
+// 使用宏定义模板函数的具体实现
+#define DEFINE_EWISE_FUNC(name, Func) \
+void name(const AlignedArray& a, const AlignedArray& b, AlignedArray* out) { \
+    EwiseFunc(a, b, out, Func()); \
+}
+
+// 定义具体函数
+DEFINE_EWISE_FUNC(EwiseMul, EwiseMulFunc)
+DEFINE_EWISE_FUNC(EwiseDiv, EwiseDivFunc)
+#undef DEFINE_EWISE_FUNC // 取消宏定义
+
+///////////////////////////////////
 
 
 void Matmul(const AlignedArray& a, const AlignedArray& b, AlignedArray* out, uint32_t m, uint32_t n,
@@ -287,6 +486,27 @@ PYBIND11_MODULE(ndarray_backend_cpu, m) {
   m.def("scalar_setitem", ScalarSetitem);
   m.def("ewise_add", EwiseAdd);
   m.def("scalar_add", ScalarAdd);
+
+
+  ////////////////////////////
+
+  m.def("ewise_mul", EwiseMul);
+  m.def("scalar_mul", ScalarMul);
+  m.def("ewise_div", EwiseDiv);
+  m.def("scalar_div", ScalarDiv);
+  m.def("scalar_power", ScalarPower);
+
+  m.def("ewise_maximum", EwiseMaximum);
+  m.def("scalar_maximum", ScalarMaximum);
+  m.def("ewise_eq", EwiseEq);
+  m.def("scalar_eq", ScalarEq);
+  m.def("ewise_ge", EwiseGe);
+  m.def("scalar_ge", ScalarGe);
+
+  m.def("ewise_log", EwiseLog);
+  m.def("ewise_exp", EwiseExp);
+  m.def("ewise_tanh", EwiseTanh);
+  ////////////////////////////
 
   // m.def("ewise_mul", EwiseMul);
   // m.def("scalar_mul", ScalarMul);

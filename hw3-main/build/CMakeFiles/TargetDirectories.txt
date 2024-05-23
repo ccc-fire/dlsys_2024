@@ -1,3 +1,4 @@
 /home/fire/dlsys_2024/hw3-main/build/CMakeFiles/rebuild_cache.dir
 /home/fire/dlsys_2024/hw3-main/build/CMakeFiles/edit_cache.dir
+/home/fire/dlsys_2024/hw3-main/build/CMakeFiles/ndarray_backend_cuda.dir
 /home/fire/dlsys_2024/hw3-main/build/CMakeFiles/ndarray_backend_cpu.dir

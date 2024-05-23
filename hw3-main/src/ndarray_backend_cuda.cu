@@ -197,6 +197,35 @@ void ScalarAdd(const CudaArray& a, scalar_t val, CudaArray* out) {
   ScalarAddKernel<<<dim.grid, dim.block>>>(a.ptr, val, out->ptr, out->size);
 }
 
+
+////////////////////
+
+// __global__ void ScalarDivKernel(const cudaArray& a, scalar_t val, CudaArray* out, size_t size) {
+//   /**
+//    * 计算当前线程的唯一索引
+//    * blockIdx.x 表示当前线程所在的线程块（block）的索引，
+//    * blockDim.x 表示线程块的大小（每个线程块中包含的线程数量），
+//    * threadIdx.x 表示当前线程在线程块中的索引。
+//    * 通过这个计算，可以确保每个线程都在处理不同的元素。
+//   */
+//   size_t grid = blockIdx.x * blockDim.x + threadIdx.x;
+//   if (grid < size) {
+//     out[grid] = a[grid] / val;
+//   }
+// }
+
+// void ScalarDiv(const CudaArray& a, scalar_t val, CudaArray* out) {
+//   /**
+//    * CUDA array divide a scalar value
+//   */
+//  CudaDims dim = CudaOneDim(out->size)
+//  ScalarDivKernel<<<dim.grid, dim.block>>>(a.ptr, val, out->ptr, out->size);
+// }
+
+
+////////////////////
+
+
 /**
  * In the code the follows, use the above template to create analogous elementise
  * and and scalar operators for the following functions.  See the numpy backend for
@@ -336,6 +365,11 @@ PYBIND11_MODULE(ndarray_backend_cuda, m) {
   m.def("scalar_setitem", ScalarSetitem);
   m.def("ewise_add", EwiseAdd);
   m.def("scalar_add", ScalarAdd);
+
+  ////////////////////////////////
+  // m.def("scalar_div", ScalarDiv);
+
+  ////////////////////////////////
 
   // m.def("ewise_mul", EwiseMul);
   // m.def("scalar_mul", ScalarMul);
