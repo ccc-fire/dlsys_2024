@@ -308,9 +308,9 @@ void EwiseTanh(const AlignedArray& a, AlignedArray* out) {
 //模板函数//逐元素操作函数
 template<typename Func>
 void EwiseFunc(const AlignedArray& a, const AlignedArray& b, AlignedArray* out, Func func) {
-    for (size_t i = 0; i < a.size; i++) {
-        out->ptr[i] = func(a.ptr[i], b.ptr[i]);
-    }
+  for (size_t i = 0; i < a.size; i++) {
+    out->ptr[i] = func(a.ptr[i], b.ptr[i]);
+  }
 }
 
 struct EwiseMulFunc
@@ -324,7 +324,7 @@ struct EwiseMulFunc
 struct EwiseDivFunc
 {
   template<typename T>
-    T operator()(const T& x, const T& y) const{
+  T operator()(const T& x, const T& y) const{
     return x / y;
   }
 };
@@ -332,7 +332,7 @@ struct EwiseDivFunc
 // 使用宏定义模板函数的具体实现
 #define DEFINE_EWISE_FUNC(name, Func) \
 void name(const AlignedArray& a, const AlignedArray& b, AlignedArray* out) { \
-    EwiseFunc(a, b, out, Func()); \
+  EwiseFunc(a, b, out, Func()); \
 }
 
 // 定义具体函数
