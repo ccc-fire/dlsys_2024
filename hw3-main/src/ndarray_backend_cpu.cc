@@ -42,13 +42,43 @@ void Fill(AlignedArray* out, scalar_t val) {
     out->ptr[i] = val;
   }
 }
+enum strided_index_mode {INDEX_OUT, INDEX_IN, SET_VAL};
 
+void _strided_index_setter(const AlignedArray* a, AlignedArray* out, std::vector<uint32_t> shape,
+                    std::vector<uint32_t> strides, size_t offset, strided_index_mode mode, int val=-1) {
+  int depth = shape.size();
+  std::vector<uint32_t> loop(depth, 0);
+  int cnt = 0;
+  while (true) {
+    // inner loop
+    int index = offset;
+    for (int i = 0; i < depth; i++) {
+      index += strides[i] * loop[i];
+    }
+    switch (mode) {
+      case INDEX_OUT: out->ptr[index] = a->ptr[cnt++]; break;
+      case INDEX_IN: out->ptr[cnt++] = a->ptr[index]; break;
+      case SET_VAL: out->ptr[index] = val; break;
+    }
 
-// void _strided_index_setter (const AlignedArray)
+    // increment
+    loop[depth - 1]++;
 
+    // carry
+    int idx = depth - 1;
+    while (loop[idx] == shape[idx]) {
+      if (idx == 0) {
+        // overflow
+        return;
+      }
+      loop[idx--] = 0;
+      loop[idx]++;
+    }
+  }
+}
 
-void Compact(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shape,
-             std::vector<int32_t> strides, size_t offset) {
+void Compact(const AlignedArray& a, AlignedArray* out, std::vector<uint32_t> shape,
+             std::vector<uint32_t> strides, size_t offset) {
   /**
    * Compact an array in memory
    *
@@ -62,32 +92,14 @@ void Compact(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shap
    * Returns:
    *  void (you need to modify out directly, rather than returning anything; this is true for all the
    *  function will implement here, so we won't repeat this note.)
-   **/
-  /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
-  // 将多维数据按照展开顺序转换成一维数组
-  size_t ndim = strides.size(), idx_out = 0;
-  std::vector<uint32_t> indices(ndim, 0);  //存储当前每个维度的索引位置
-
-  while(indices[0] != shape[0]) {
-    size_t idx_a = 0;
-    for(size_t i = 0; i < ndim; i++)
-      idx_a += indices[i] * strides[i];
-    out->ptr[idx_out++] = a.ptr[offset + idx_a];
-    indices[ndim-1]++;
-
-    for(size_t i = ndim - 1; i > 0; i--) {
-      if(indices[i] != shape[i])
-        break;
-      indices[i] = 0;
-      indices[i-1]++;
-    }
-  }
-  /// END SOLUTION
+   */
+  /// BEGIN YOUR SOLUTION
+  _strided_index_setter(&a, out, shape, strides, offset, INDEX_IN); 
+  /// END YOUR SOLUTION
 }
 
-void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shape,
-                  std::vector<int32_t> strides, size_t offset) {
+void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<uint32_t> shape,
+                  std::vector<uint32_t> strides, size_t offset) {
   /**
    * Set items in a (non-compact) array
    *
@@ -97,15 +109,14 @@ void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<int32_t>
    *   shape: shapes of each dimension for a and out
    *   strides: strides of the *out* array (not a, which has compact strides)
    *   offset: offset of the *out* array (not a, which has zero offset, being compact)
-   将一个非紧凑排列的数组 a 中的元素写入到另一个非紧凑排列的数组 out 中。
    */
-  /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
-  /// END SOLUTION
+  /// BEGIN YOUR SOLUTION
+  _strided_index_setter(&a, out, shape, strides, offset, INDEX_OUT); 
+  /// END YOUR SOLUTION
 }
 
-void ScalarSetitem(const size_t size, scalar_t val, AlignedArray* out, std::vector<int32_t> shape,
-                   std::vector<int32_t> strides, size_t offset) {
+void ScalarSetitem(const size_t size, scalar_t val, AlignedArray* out, std::vector<uint32_t> shape,
+                   std::vector<uint32_t> strides, size_t offset) {
   /**
    * Set items is a (non-compact) array
    *
@@ -120,10 +131,132 @@ void ScalarSetitem(const size_t size, scalar_t val, AlignedArray* out, std::vect
    *   offset: offset of the out array
    */
 
-  /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
-  /// END SOLUTION
+  /// BEGIN YOUR SOLUTION
+  _strided_index_setter(nullptr, out, shape, strides, offset, SET_VAL, val); 
+  /// END YOUR SOLUTION
 }
+
+// void _strided_index_setter (const AlignedArray*a, AlignedArray* out, std::vector<int32_t> shape,
+//             std::vector<int32_t> strides, size_t offset, strided_index_mode mode, int val=-1) {}
+
+
+// void Compact(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shape,
+//              std::vector<int32_t> strides, size_t offset) {
+//   /**
+//    * Compact an array in memory
+//    *
+//    * Args:
+//    *   a: non-compact representation of the array, given as input
+//    *   out: compact version of the array to be written
+//    *   shape: shapes of each dimension for a and out
+//    *   strides: strides of the *a* array (not out, which has compact strides)
+//    *   offset: offset of the *a* array (not out, which has zero offset, being compact)
+//    *
+//    * Returns:
+//    *  void (you need to modify out directly, rather than returning anything; this is true for all the
+//    *  function will implement here, so we won't repeat this note.)
+//    * 将多维数据按照展开顺序转换成一维数组
+//    **/
+//   /// BEGIN SOLUTION
+//   size_t depth = shape.size();
+//   std::vector<uint32_t> loop(depth, 0);
+  
+//   int a_index = 0;
+//   while(true) {
+//     int out_index = offset;
+//     for(int i = 0; i < depth; i++) {
+//       out_index += strides[i] * loop[i];
+//     }
+//     out->ptr[out_index] = a.ptr[a_index++];
+//     loop[depth--] ++;
+
+//     int idx = depth - 1;
+//     while(loop[idx] == shape[idx]) {
+//       if(idx == 0) return;
+//       loop[idx--] = 0;
+//       loop[idx]++;
+//     }
+//   }
+  
+
+//   /// END SOLUTION
+// }
+
+// void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<int32_t> shape,
+//                   std::vector<int32_t> strides, size_t offset) {
+//   /**
+//    * Set items in a (non-compact) array
+//    *
+//    * Args:
+//    *   a: _compact_ array whose items will be written to out
+//    *   out: non-compact array whose items are to be written
+//    *   shape: shapes of each dimension for a and out
+//    *   strides: strides of the *out* array (not a, which has compact strides)
+//    *   offset: offset of the *out* array (not a, which has zero offset, being compact)
+//    * 将一个非紧凑排列的数组 a 中的元素写入到另一个非紧凑排列的数组 out 中。
+//    */
+//   /// BEGIN SOLUTION
+//   // assert(false && "Not Implemented");
+//   int out_index = offset;
+//   int depth = shape.size();
+//   std::vector<int> loop(depth,  0);
+
+//   while(1) {
+//     int a_index = 0;
+//     for(int i = 0; i < depth; i++) 
+//       a_index += shape[i] * loop[i];
+//     out->ptr[out_index++] = a.ptr[a_index];
+//     loop[depth--]++;
+
+//     int idx = depth - 1;
+//     while(loop[idx] == shape[idx]) {
+//       if(idx == 0) return;
+//       loop[idx--] = 0;
+//       loop[idx]++;
+//     }
+//   }
+
+
+//   /// END SOLUTION
+// }
+
+// void ScalarSetitem(const size_t size, scalar_t val, AlignedArray* out, std::vector<int32_t> shape,
+//                    std::vector<int32_t> strides, size_t offset) {
+//   /**
+//    * Set items is a (non-compact) array
+//    *
+//    * Args:
+//    *   size: number of elements to write in out array (note that this will note be the same as
+//    *         out.size, because out is a non-compact subset array);  it _will_ be the same as the
+//    *         product of items in shape, but convenient to just pass it here.
+//    *   val: scalar value to write to
+//    *   out: non-compact array whose items are to be written
+//    *   shape: shapes of each dimension of out
+//    *   strides: strides of the out array
+//    *   offset: offset of the out array
+//    */
+
+//   /// BEGIN SOLUTION
+//   // assert(false && "Not Implemented");
+//   int depth = shape.size();
+//   std::vector<int> loop(depth, 0);
+//   int out_index = offset;
+//   while(1) {
+//     for(int i = 0; i < depth; i++) {
+//       out_index += shape[i] * loop[i];
+//     }
+//     out->ptr[out_index] = val;
+//     loop[depth--] ++;
+
+//     int idx = depth - 1;
+//     while(loop[idx] == shape[idx]) {
+//       if(idx == 0) return;
+//       loop[idx--] = 0;
+//       loop[idx]++;
+//     }
+//   }
+//   /// END SOLUTION
+// }
 
 void EwiseAdd(const AlignedArray& a, const AlignedArray& b, AlignedArray* out) {
   /**
@@ -356,10 +489,19 @@ void Matmul(const AlignedArray& a, const AlignedArray& b, AlignedArray* out, uin
    *   m: rows of a / out
    *   n: columns of a / rows of b
    *   p: columns of b / out
+   * 行 * 列
    */
 
   /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
+  // assert(false && "Not Implemented");
+  for(int row = 0; row < m; row++) {
+    for(int col = 0; col < p; col++) {
+      out->ptr[row * p + col] = 0;
+      for(int k = 0; k < n; k++) { // 初始化 k 变量
+        out->ptr[row * p + col] += a.ptr[row * n + k] * b.ptr[k * p + col];
+      }
+    }
+  }
   /// END SOLUTION
 }
 
@@ -389,7 +531,15 @@ inline void AlignedDot(const float* __restrict__ a,
   out = (float*)__builtin_assume_aligned(out, TILE * ELEM_SIZE);
 
   /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
+  // assert(false && "Not Implemented");
+  for(size_t i = 0; i < TILE; i++) {
+    for(size_t j = 0; j < TILE; j++) {
+      scalar_t sum = 0;
+      for(size_t k = 0; k < TILE; k++)
+        sum += a[i * TILE + k] * b[k * TILE + j];
+      out[i * TILE + j] = sum;
+    }
+  }
   /// END SOLUTION
 }
 
@@ -415,7 +565,35 @@ void MatmulTiled(const AlignedArray& a, const AlignedArray& b, AlignedArray* out
    *
    */
   /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
+  // assert(false && "Not Implemented");
+  scalar_t* tile_a = new scalar_t[TILE * TILE];
+  scalar_t* tile_b = new scalar_t[TILE * TILE];
+  scalar_t* tile_out = new scalar_t[TILE * TILE];
+
+  for(size_t i = 0; i < m / TILE; i++) {
+    for(size_t j = 0; j < p / TILE; j++) {
+      for(size_t s = 0; s < TILE * TILE; s++)
+        out->ptr[i * p * TILE + j * TILE * TILE + s] = 0;
+
+      for(size_t k = 0; k < n / TILE; k++) {
+
+        for(size_t s = 0; s < TILE * TILE; s++) {
+          tile_a[s] = a.ptr[i * n * TILE + k * TILE * TILE + s];
+          tile_b[s] = b.ptr[k * p * TILE + j * TILE * TILE + s];
+        }
+
+        AlignedDot(tile_a, tile_b, tile_out);
+
+        for(size_t s = 0; s < TILE * TILE; s++) {
+          out->ptr[i * p * TILE + j * TILE * TILE + s] += tile_out[s];
+        }
+      }
+    }
+  }
+
+  delete[] tile_a;
+  delete[] tile_b;
+  delete[] tile_out; 
   /// END SOLUTION
 }
 
@@ -430,7 +608,19 @@ void ReduceMax(const AlignedArray& a, AlignedArray* out, size_t reduce_size) {
    */
 
   /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
+  // assert(false && "Not Implemented");
+  int out_size = a.size / reduce_size;
+  int a_index = 0, out_index = 0;
+  float max = a.ptr[0];
+
+  while(out_index < out_size) {
+    for(int i = 0; i < reduce_size; i++) {
+      max = max > a.ptr[a_index + i] ? max : a.ptr[a_index + i];
+    }
+    out->ptr[out_index++] = max;
+    a_index += reduce_size;
+    max = a.ptr[a_index];
+  }
   /// END SOLUTION
 }
 
@@ -445,7 +635,19 @@ void ReduceSum(const AlignedArray& a, AlignedArray* out, size_t reduce_size) {
    */
 
   /// BEGIN SOLUTION
-  assert(false && "Not Implemented");
+  // assert(false && "Not Implemented");
+  int out_size = a.size / reduce_size;
+  int a_index = 0, out_index = 0;
+
+  while(out_index < out_size) {
+    float sum = 0;
+    for(int i = 0; i < reduce_size; i++) {
+      sum += a.ptr[a_index + i];
+    }
+    out->ptr[out_index++] = sum;
+    a_index += reduce_size;
+  }
+
   /// END SOLUTION
 }
 
@@ -506,6 +708,11 @@ PYBIND11_MODULE(ndarray_backend_cpu, m) {
   m.def("ewise_log", EwiseLog);
   m.def("ewise_exp", EwiseExp);
   m.def("ewise_tanh", EwiseTanh);
+
+  m.def("reduce_max", ReduceMax);
+  m.def("reduce_sum", ReduceSum);
+
+  m.def("matmul", Matmul);
   ////////////////////////////
 
   // m.def("ewise_mul", EwiseMul);
