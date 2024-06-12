@@ -352,16 +352,16 @@ CUDA_nvToolsExt_LIBRARY:FILEPATH=/usr/local/cuda-11.3/lib64/libnvToolsExt.so
 Python_LIBRARY_DEBUG:FILEPATH=
 
 //Path to a library.
-Python_LIBRARY_RELEASE:FILEPATH=/home/fire/miniconda3/lib/libpython3.8.so
+Python_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libpython3.8.so
 
 //Path to a program.
-_Python_EXECUTABLE:FILEPATH=/home/fire/miniconda3/bin/python3.8
+_Python_EXECUTABLE:FILEPATH=/usr/bin/python3.8
 
 //Path to a file.
-_Python_INCLUDE_DIR:PATH=/home/fire/miniconda3/include/python3.8
+_Python_INCLUDE_DIR:PATH=/usr/include/python3.8
 
 //Path to a library.
-_Python_LIBRARY_RELEASE:FILEPATH=/home/fire/miniconda3/lib/libpython3.8.so
+_Python_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libpython3.8.so
 
 //Dependencies for the target
 ndarray_backend_cuda_LIB_DEPENDS:STATIC=general;/usr/local/cuda-11.3/lib64/libcudart.so;general;/usr/local/cuda-11.3/lib64/libcudart.so;
@@ -630,11 +630,11 @@ CUDA_run_nvcc:INTERNAL=/usr/share/cmake-3.16/Modules/FindCUDA/run_nvcc.cmake
 //Details about finding CUDA
 FIND_PACKAGE_MESSAGE_DETAILS_CUDA:INTERNAL=[/usr/local/cuda-11.3][/usr/local/cuda-11.3/bin/nvcc][/usr/local/cuda-11.3/include][/usr/local/cuda-11.3/lib64/libcudart.so][v11.3()]
 //Details about finding Python
-FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/home/fire/miniconda3/bin/python3.8][/home/fire/miniconda3/lib/libpython3.8.so][/home/fire/miniconda3/include/python3.8][cfound components: Development Interpreter ][v3.8.18()]
+FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/usr/bin/python3.8][/usr/lib/x86_64-linux-gnu/libpython3.8.so][/usr/include/python3.8][cfound components: Development Interpreter ][v3.8.10()]
 //Test HAS_FLTO
 HAS_FLTO:INTERNAL=1
 //Python executable during the last CMake run
-PYBIND11_PYTHON_EXECUTABLE_LAST:INTERNAL=/home/fire/miniconda3/bin/python3.8
+PYBIND11_PYTHON_EXECUTABLE_LAST:INTERNAL=/usr/bin/python3.8
 //Python debug status
 PYTHON_IS_DEBUG:INTERNAL=0
 PYTHON_MODULE_EXTENSION:INTERNAL=.cpython-38-x86_64-linux-gnu.so
@@ -645,20 +645,20 @@ Python_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 _Python:INTERNAL=Python
 //ADVANCED property for variable: _Python_DEVELOPMENT_SIGNATURE
 _Python_DEVELOPMENT_SIGNATURE-ADVANCED:INTERNAL=1
-_Python_DEVELOPMENT_SIGNATURE:INTERNAL=26425bfbe2b4b8b87fb3c1ffaf08c622
+_Python_DEVELOPMENT_SIGNATURE:INTERNAL=55e47f4d0edbe8d8e9a2dc2935012148
 //ADVANCED property for variable: _Python_EXECUTABLE
 _Python_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: _Python_INCLUDE_DIR
 _Python_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: _Python_INTERPRETER_SIGNATURE
 _Python_INTERPRETER_SIGNATURE-ADVANCED:INTERNAL=1
-_Python_INTERPRETER_SIGNATURE:INTERNAL=6ec9e2ca59578817b40030edabbc0729
+_Python_INTERPRETER_SIGNATURE:INTERNAL=122531120de44b47a23230203dd1a038
 //ADVANCED property for variable: _Python_LIBRARY_RELEASE
 _Python_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //Result of TRY_COMPILE
 compile_result:INTERNAL=TRUE
 //Directories where pybind11 and possibly Python headers are located
-pybind11_INCLUDE_DIRS:INTERNAL=/home/fire/miniconda3/lib/python3.8/site-packages/pybind11/include;/home/fire/miniconda3/include/python3.8
+pybind11_INCLUDE_DIRS:INTERNAL=/home/fire/miniconda3/lib/python3.8/site-packages/pybind11/include;/usr/include/python3.8
 //Result of TRY_RUN
 run_result:INTERNAL=0
 

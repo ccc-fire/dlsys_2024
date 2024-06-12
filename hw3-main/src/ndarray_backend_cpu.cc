@@ -94,7 +94,24 @@ void Compact(const AlignedArray& a, AlignedArray* out, std::vector<uint32_t> sha
    *  function will implement here, so we won't repeat this note.)
    */
   /// BEGIN YOUR SOLUTION
-  _strided_index_setter(&a, out, shape, strides, offset, INDEX_IN); 
+  // _strided_index_setter(&a, out, shape, strides, offset, INDEX_IN);
+  // assert(false && "Not Implemented");
+  int ndim = shape.size(), idx_out = 0;
+  std::vector<uint32_t> indices(ndim, 0);
+  while(indices[0] != shape[0]) {
+    int idx_a = offset;
+    for(int i = 0; i < ndim; i++) {
+      idx_a += indices[i] * strides[i];
+    }
+    out->ptr[idx_out++] = a.ptr[idx_a];
+    indices[ndim-1]++;
+
+    for(int i = ndim-1; i > 0; i--) {
+      if(indices[i] != shape[i]) break;
+      indices[i] = 0;
+      indices[i-1]++;
+    }
+  }
   /// END YOUR SOLUTION
 }
 
@@ -111,7 +128,25 @@ void EwiseSetitem(const AlignedArray& a, AlignedArray* out, std::vector<uint32_t
    *   offset: offset of the *out* array (not a, which has zero offset, being compact)
    */
   /// BEGIN YOUR SOLUTION
-  _strided_index_setter(&a, out, shape, strides, offset, INDEX_OUT); 
+  // _strided_index_setter(&a, out, shape, strides, offset, INDEX_OUT); 
+  size_t ndim = shape.size(), idx_a = 0;
+  std::vector<uint32_t> indices(ndim, 0);
+
+  while(indices[0] != shape[0]) {
+    size_t idx_out = offset;
+    for(size_t i = 0; i < ndim; i++) {
+      idx_out += indices[i] * strides[i];
+    }
+    out->ptr[idx_out] = a.ptr[idx_a++];
+    indices[ndim-1] ++;
+
+    for(size_t i = ndim-1; i > 0; i--) {
+      if(indices[i] != shape[i]) break;
+      indices[i] = 0;
+      indices[i-1]++;
+    }
+    
+  }
   /// END YOUR SOLUTION
 }
 
@@ -132,7 +167,24 @@ void ScalarSetitem(const size_t size, scalar_t val, AlignedArray* out, std::vect
    */
 
   /// BEGIN YOUR SOLUTION
-  _strided_index_setter(nullptr, out, shape, strides, offset, SET_VAL, val); 
+  // _strided_index_setter(nullptr, out, shape, strides, offset, SET_VAL, val); 
+  size_t ndim = shape.size();
+  std::vector<uint32_t> indices(ndim, 0);
+  
+  while(shape[0] != indices[0]) {
+    size_t idx_out = offset;
+    for(size_t i = 0; i < ndim; i++) {
+      idx_out += indices[i] * strides[i];
+    }
+    out->ptr[idx_out] = val;
+    indices[ndim-1]++;
+
+    for(size_t i = ndim-1; i > 0; i--) {
+      if(indices[i] != shape[i]) break;
+      indices[i] = 0;
+      indices[i-1]++;
+    }
+  }
   /// END YOUR SOLUTION
 }
 
@@ -524,6 +576,7 @@ inline void AlignedDot(const float* __restrict__ a,
    *   a: compact 2D array of size TILE x TILE
    *   b: compact 2D array of size TILE x TILE
    *   out: compact 2D array of size TILE x TILE to write to
+   * 计算两个 TILE × TILE 矩阵的乘积，并将结果累加到输出矩阵 out 中。
    */
 
   a = (const float*)__builtin_assume_aligned(a, TILE * ELEM_SIZE);
@@ -534,10 +587,9 @@ inline void AlignedDot(const float* __restrict__ a,
   // assert(false && "Not Implemented");
   for(size_t i = 0; i < TILE; i++) {
     for(size_t j = 0; j < TILE; j++) {
-      scalar_t sum = 0;
+      out[i * TILE + j] = 0;
       for(size_t k = 0; k < TILE; k++)
-        sum += a[i * TILE + k] * b[k * TILE + j];
-      out[i * TILE + j] = sum;
+        out[i * TILE + j] += a[i * TILE + k] * b[k * TILE + j];
     }
   }
   /// END SOLUTION
@@ -562,7 +614,8 @@ void MatmulTiled(const AlignedArray& a, const AlignedArray& b, AlignedArray* out
    *   m: rows of a / out
    *   n: columns of a / rows of b
    *   p: columns of b / out
-   *
+   * 用于执行基于 tile 的矩阵乘法，利用先前实现的 AlignedDot 函数来完成实际的计算。
+   * 这里的 a、b 和 out 是紧凑的 4D 数组，表示多个 TILE×TILE 大小的子矩阵
    */
   /// BEGIN SOLUTION
   // assert(false && "Not Implemented");
@@ -572,21 +625,25 @@ void MatmulTiled(const AlignedArray& a, const AlignedArray& b, AlignedArray* out
 
   for(size_t i = 0; i < m / TILE; i++) {
     for(size_t j = 0; j < p / TILE; j++) {
+
       for(size_t s = 0; s < TILE * TILE; s++)
-        out->ptr[i * p * TILE + j * TILE * TILE + s] = 0;
+        out->ptr[(i * p / TILE + j) * TILE * TILE + s] = 0;
 
       for(size_t k = 0; k < n / TILE; k++) {
 
         for(size_t s = 0; s < TILE * TILE; s++) {
           tile_a[s] = a.ptr[i * n * TILE + k * TILE * TILE + s];
           tile_b[s] = b.ptr[k * p * TILE + j * TILE * TILE + s];
+          // tile_a[s] = a.ptr[(i*n/TILE+k)*TILE*TILE+s];
+          // tile_b[s] = b.ptr[(k*p/TILE+J)*TILE*TILE+s];
         }
 
         AlignedDot(tile_a, tile_b, tile_out);
 
         for(size_t s = 0; s < TILE * TILE; s++) {
-          out->ptr[i * p * TILE + j * TILE * TILE + s] += tile_out[s];
+          out->ptr[(i * p / TILE + j) * TILE * TILE + s] += tile_out[s];
         }
+
       }
     }
   }
